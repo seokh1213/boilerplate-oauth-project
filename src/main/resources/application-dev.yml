@@ -1,0 +1,12 @@
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:13806/boilerplate-oauth
+    username: root
+    password: root
+
+logging:
+  level:
+    root: debug
+
+frontend-url: ${FRONTEND_URL:http://localhost:33000}
