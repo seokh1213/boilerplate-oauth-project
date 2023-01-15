@@ -8,7 +8,6 @@ import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
@@ -65,8 +64,10 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http,
                                            HandlerExceptionResolver handlerExceptionResolver,
                                            ExceptionHandlerFilter exceptionHandlerFilter,
-                                           AuthenticationSuccessHandler authenticationSuccessHandler,
-                                           AuthenticationFailureHandler authenticationFailureHandler,
+                                           AuthenticationSuccessHandler simpleAuthenticationSuccessHandler,
+                                           AuthenticationFailureHandler simpleAuthenticationFailureHandler,
+                                           AuthenticationSuccessHandler simpleLoginSuccessHandler,
+                                           AuthenticationFailureHandler simpleLoginFailureHandler,
                                            LogoutSuccessHandler logoutSuccessHandler,
                                            AuthenticationProvider authenticationProvider
     ) throws Exception {
@@ -82,7 +83,12 @@ public class SecurityConfig {
                 .authorizeHttpRequests(config -> config
                         .anyRequest().permitAll())
                 // 일반 로그인/로그아웃
-                .formLogin(AbstractHttpConfigurer::disable)
+                .formLogin(config -> config
+                        .loginProcessingUrl("/api/auth/login")
+                        .usernameParameter("email")
+                        .successHandler(simpleLoginSuccessHandler)
+                        .failureHandler(simpleLoginFailureHandler)
+                )
                 .logout(config -> config
                         .logoutUrl("/api/auth/logout")
                         .logoutSuccessHandler(logoutSuccessHandler))
@@ -90,8 +96,8 @@ public class SecurityConfig {
                 .oauth2Login(config -> config
                         .authorizationEndpoint().baseUri("/api/auth/social").and()
                         .redirectionEndpoint().baseUri("/api/auth/social/{registrationId}/callback").and()
-                        .successHandler(authenticationSuccessHandler)
-                        .failureHandler(authenticationFailureHandler))
+                        .successHandler(simpleAuthenticationSuccessHandler)
+                        .failureHandler(simpleAuthenticationFailureHandler))
                 // auth 예외 처리
                 .exceptionHandling(config -> config
                         .authenticationEntryPoint((request, response, authException) -> handlerExceptionResolver.resolveException(request, response, null, authException))

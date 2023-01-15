@@ -1,6 +1,5 @@
 package com.boilerplate.oauth.backend.service.auth;
 
-import com.boilerplate.oauth.backend.model.dto.AuthDTO;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -49,12 +48,12 @@ public class ManageAuthService {
 
     private String getToken(HttpServletRequest request, String cookieName) {
         Cookie[] cookies = request.getCookies();
-        if(Objects.isNull(cookies)) {
+        if (Objects.isNull(cookies)) {
             return null;
         }
 
         for (Cookie cookie : cookies) {
-            if(cookie.getName().equals(cookieName)) {
+            if (cookie.getName().equals(cookieName)) {
                 return cookie.getValue();
             }
         }
@@ -67,7 +66,7 @@ public class ManageAuthService {
         setToken(response, REFRESH_TOKEN_COOKIE_NAME, 0, "");
     }
 
-    private void setToken(HttpServletResponse  response, String cookieName, int expire, String data) {
+    private void setToken(HttpServletResponse response, String cookieName, int expire, String data) {
         Cookie cookie = new Cookie(cookieName, data);
         cookie.setPath("/");
         cookie.setMaxAge(expire);
@@ -77,11 +76,11 @@ public class ManageAuthService {
         response.addCookie(cookie);
     }
 
-    public void transferAuth(HttpServletRequest request, HttpServletResponse response, AuthDTO authDTO) {
+    public void transferAuth(HttpServletRequest request, HttpServletResponse response, String uid) {
         // access token 발행
-        String accessToken = tokenService.createAccessToken(authDTO.uid(), ACCESS_TOKEN_EXPIRE);
+        String accessToken = tokenService.createAccessToken(uid, ACCESS_TOKEN_EXPIRE);
         // refresh token 발행
-        String refreshToken = tokenService.createRefreshToken(authDTO.uid(), REFRESH_TOKEN_EXPIRE);
+        String refreshToken = tokenService.createRefreshToken(uid, REFRESH_TOKEN_EXPIRE);
 
         // access token cookie set
         setToken(response, ACCESS_TOKEN_COOKIE_NAME, ACCESS_TOKEN_EXPIRE, accessToken);

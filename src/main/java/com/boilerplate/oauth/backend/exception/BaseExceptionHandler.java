@@ -8,6 +8,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.multipart.MultipartException;
@@ -25,6 +26,12 @@ public class BaseExceptionHandler {
         } else {
             return BaseResponse.exception(CommonException.MISSING_PARAMETER);
         }
+    }
+
+    @ExceptionHandler({MissingServletRequestParameterException.class})
+    public BaseResponse missingParameters(MissingServletRequestParameterException e) {
+        log.debug("[missingParameters]", e);
+        return BaseResponse.exception(CommonException.MISSING_PARAMETER);
     }
 
     @ExceptionHandler({MethodArgumentNotValidException.class, MultipartException.class})

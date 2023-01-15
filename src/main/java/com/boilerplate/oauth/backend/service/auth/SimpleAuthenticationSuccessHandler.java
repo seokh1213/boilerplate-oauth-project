@@ -24,12 +24,12 @@ public class SimpleAuthenticationSuccessHandler extends SimpleUrlAuthenticationS
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException {
         AuthDTO authDTO = authService.saveAuth(authentication);
-        User user = userService.syncUser(authDTO.uid(), authDTO.email(), authDTO.nickname());
+        User user = userService.syncUser(authDTO.uid(), authDTO.nickname());
 
         String targetUrl;
         if (!user.isBlock()) {
             targetUrl = manageAuthService.getAuthUrl();
-            manageAuthService.transferAuth(request, response, authDTO);
+            manageAuthService.transferAuth(request, response, authDTO.uid());
         } else {
             targetUrl = manageAuthService.getAuthFailureUrl(Map.of("error", "block_user"));
             manageAuthService.clearAuth(request, response);
