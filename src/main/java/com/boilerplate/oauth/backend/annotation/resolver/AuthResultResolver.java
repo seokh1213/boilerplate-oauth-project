@@ -1,10 +1,9 @@
 package com.boilerplate.oauth.backend.annotation.resolver;
 
-import com.boilerplate.oauth.backend.model.dto.UserDTO;
-import com.boilerplate.oauth.backend.model.entity.Auth;
-import com.boilerplate.oauth.backend.model.entity.User;
 import com.boilerplate.oauth.backend.annotation.AuthResult;
 import com.boilerplate.oauth.backend.exception.CommonException;
+import com.boilerplate.oauth.backend.model.entity.Auth;
+import com.boilerplate.oauth.backend.model.entity.User;
 import com.boilerplate.oauth.backend.service.UserService;
 import com.boilerplate.oauth.backend.service.auth.AuthService;
 import com.boilerplate.oauth.backend.service.auth.ManageAuthService;
@@ -31,7 +30,7 @@ public class AuthResultResolver implements HandlerMethodArgumentResolver {
     @Override
     public boolean supportsParameter(MethodParameter parameter) {
         return parameter.getParameterAnnotation(AuthResult.class) != null &&
-                parameter.getParameterType().equals(UserDTO.class);
+                parameter.getParameterType().equals(User.class);
     }
 
     @Override
@@ -47,8 +46,8 @@ public class AuthResultResolver implements HandlerMethodArgumentResolver {
                 .flatMap(authService::getAuthByUid)
                 .orElse(null);
 
-        if(Objects.isNull(auth)) {
-            if(authResult.isRequired()) {
+        if (Objects.isNull(auth)) {
+            if (authResult.isRequired()) {
                 throw CommonException.UNAUTHORIZED;
             } else {
                 return null;
@@ -58,15 +57,15 @@ public class AuthResultResolver implements HandlerMethodArgumentResolver {
         User user = userService.getUserByUid(auth.getUid())
                 .orElse(null);
 
-        if(Objects.isNull(user)) {
-            if(authResult.isRequired()) {
+        if (Objects.isNull(user)) {
+            if (authResult.isRequired()) {
                 throw CommonException.UNAUTHORIZED;
             }
         } else {
-            if(user.isBlock()) {
+            if (user.isBlock()) {
                 throw CommonException.FORBIDDEN;
             }
-            return new UserDTO(user.getUid(), user.getNickname(), user.getType());
+            return user;
         }
 
         return null;
